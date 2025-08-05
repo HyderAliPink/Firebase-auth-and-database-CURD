@@ -19,7 +19,16 @@ async function displayName() {
       Dashboard.innerText = `Welcome, ${user.displayName}`;
       console.log(user);
     } else {
-      window.location.href = "register.html";
+       Swal.fire({
+      icon: "success",
+      title: "Logged Out",
+      text: "Logging out in",
+      timer: 1000,
+      showConfirmButton: false,
+    })
+      setTimeout(()=> {
+        window.location.href = "register.html"
+      }, 1200)
     }
   });
 }
@@ -65,12 +74,10 @@ logoutBtn.addEventListener("click", () => {
     Swal.fire({
       icon: "success",
       title: "Logged Out",
-      text: "Logging out in",
+      text: "Sad to see you go.",
       timer: 1000,
       showConfirmButton: false,
-    }).then(() => {
-      window.location.href = "login.html";
-    });
+    })
   });
 });
 let Allproducts = [];
