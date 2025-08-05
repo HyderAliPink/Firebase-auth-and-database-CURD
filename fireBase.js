@@ -4,7 +4,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
   getDocs
-import { getFirestore, collection, addDoc, getDocs  } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc   } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
 
 import {
   getAuth,
@@ -17,6 +17,7 @@ import {
   signInWithPopup,
   updateProfile,
   onAuthStateChanged,
+  
 } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -46,5 +47,6 @@ export {
   signInWithPopup,
   updateProfile,
   collection, addDoc,
-  
+  deleteDoc,
+  doc
 };
