@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <title>Add Product</title>
-  <script defer src="add-product.js"></script>
+  
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <div class="bg-white shadow-lg rounded-xl p-8 w-full max-w-md">
+
+<body class="bg-gray-100  min-h-screen items-center flex flex-col">
+  
+  <div class="bg-white shadow-lg rounded-xl p-8 w-full  max-w-full">
     <h2 class="text-2xl font-bold mb-6 text-center">Add New Product</h2>
 
     <div class="mb-4">
@@ -37,6 +39,21 @@
 </a>
 
   </div>
-  <script type="module" src="Addproduct.js"></script>
+
+  <div id="CardAdmin" class="  grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8 p-4">
+<!-- From Uiverse.io by Vazafirst --> 
+<div  class="absolute left-0 right-0 hidden w-[85%] top-0 bottom-0" id="page">
+        <div id="container">
+            <div id="ring"></div>
+            <div id="ring"></div>
+            <div id="ring"></div>
+            <div id="ring"></div>
+            <div id="h3">loading</div>
+        </div>
+</div>
+  </div>
+
+  <script type="module" src="./Addproduct.js"></script>
+
 </body>
 </html>

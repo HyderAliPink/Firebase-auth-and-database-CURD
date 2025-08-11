@@ -1,4 +1,4 @@
-import { getAuth, db, collection, addDoc  } from "./fireBase.js";
+import { getAuth, db, collection, addDoc, getDocs  } from "./fireBase.js";
 
 const auth = getAuth();
 
@@ -39,4 +39,54 @@ let ProductPrice = document.getElementById('ProductPrice').value
 
 
 })
+
+let CardAdmin = document.getElementById("CardAdmin");
+
+
+
+async function renderProducts() {
+  const querySnapshot = await getDocs(collection(db, "Products"));
+
+  if (querySnapshot.empty) {
+    CardAdmin.innerHTML = `
+      <p class="text-center text-gray-600 text-lg">No products available.</p>
+    `;
+  } else {
+    const renderingProducts = [];
+
+    querySnapshot.forEach((doc) => {
+      const m = doc.data();
+      // console.log(doc.id);
+
+      renderingProducts.push(`
+        <div class="bg-white p-4 rounded-lg shadow-md  ">
+          <img 
+            src="${m.imageUrl}" 
+            alt="Product Image" 
+            class="w-full h-40 object-fill rounded-md mb-3"
+          />
+          <h2 class="text-lg font-semibold text-gray-800 mb-2">${m.productName}</h2>
+          <p class="text-sm font-medium text-gray-700">Price: $${m.ProductPrice}</p>
+          <button onclick="deleteProduct('${doc.id}')" class="w-[90%] bg-blue-500 text-white py-2 px-4 mb-4 rounded hover:bg-blue-600 transition duration-300">
+      Delete
+    </button>
+    <button class="w-[90%] bg-red-500 text-white py-2 px-4 mb-4 rounded hover:bg-red-600 transition duration-300" >Edit</button>
+        </div>
+         
+      `);
+    });
+
+    CardAdmin.innerHTML = renderingProducts.join("");
+  }
+}
+
+async function deleteProduct(e) {
+  await deleteDoc(doc(db, "Products", e));
+  renderProducts();
+}
+
+window.deleteProduct = deleteProduct;
+
+
+  renderProducts();
 
