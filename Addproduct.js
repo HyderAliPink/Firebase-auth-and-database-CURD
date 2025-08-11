@@ -1,4 +1,4 @@
-import { getAuth, db, collection, addDoc, getDocs  } from "./fireBase.js";
+import { getAuth, db, collection, addDoc, getDocs, deleteDoc  } from "./fireBase.js";
 
 const auth = getAuth();
 
@@ -89,4 +89,5 @@ window.deleteProduct = deleteProduct;
 
 
   renderProducts();
+
 
