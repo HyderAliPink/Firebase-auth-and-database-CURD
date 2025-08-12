@@ -1,10 +1,19 @@
 // ✅ Modern modular Firebase SDK
 
-
-
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-app.js";
-  getDocs
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc   } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
+getDocs;
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  deleteDoc,
+  doc,
+  arrayUnion,
+  updateDoc,
+  getDoc,
+  setDoc,
+} from "https://www.gstatic.com/firebasejs/11.7.1/firebase-firestore.js";
 
 import {
   getAuth,
@@ -17,7 +26,6 @@ import {
   signInWithPopup,
   updateProfile,
   onAuthStateChanged,
-  
 } from "https://www.gstatic.com/firebasejs/11.7.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -34,8 +42,13 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 export {
+  arrayUnion,
+  updateDoc,
+  getFirestore,
   db,
   getDocs,
+  getDoc,
+  setDoc,
   getAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -46,7 +59,9 @@ export {
   signOut,
   signInWithPopup,
   updateProfile,
-  collection, addDoc,
+  collection,
+  addDoc,
   deleteDoc,
-  doc
+  doc,
+  
 };

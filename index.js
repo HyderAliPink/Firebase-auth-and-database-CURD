@@ -1,30 +1,30 @@
 import {
+  getFirestore,
+  getDoc,
   getAuth,
   signOut,
   db,
   collection,
   getDocs,
+  updateDoc,
+  arrayUnion,
   onAuthStateChanged,
   deleteDoc,
   doc,
+  setDoc,
 } from "./fireBase.js";
 
 let product = {};
-
+let CheckoutName = document.getElementById("CheckoutName");
 const auth = getAuth();
-document.getElementById("page").classList.remove("hidden");
-document.getElementById("page").classList.add("flex");
 async function displayName() {
   onAuthStateChanged(auth, (user) => {
-    // console.log(user.displayName);
+    console.log(user);
     setTimeout(() => {
       if (user) {
-        document.getElementById("page").classList.remove("flex");
-
-        document.getElementById("page").classList.add("hidden");
         const uid = user.uid;
         Dashboard.innerText = `Hi!, ${user.displayName}`;
-        // console.log(user);
+        CheckoutName.innerText = `${user.displayName}`;
       } else {
         Swal.fire({
           icon: "success",
@@ -47,19 +47,18 @@ let logoutBtn = document.getElementById("logoutBtn");
 const addProductBtn = document.getElementById("addProductBtn");
 const Dashboard = document.getElementById("Dashboard");
 
-// let Admin;
-// let user = true;
-//         }})
 let passkey = "123456";
 async function deleteProduct(e) {
   await deleteDoc(doc(db, "Products", e));
   renderProducts();
 }
+
+// let Admin = false
 addProductBtn.addEventListener("click", () => {
   let timerInterval;
-  
+
   Swal.fire({
-    title: "Enter Passkey",
+    title: "Enter Admin Password",
     input: "password",
     inputLabel: "Passkey",
     inputPlaceholder: "••••••••",
@@ -97,8 +96,8 @@ addProductBtn.addEventListener("click", () => {
       console.log("Invalid passkey");
       Swal.fire({
         icon: "error",
-        title: "Incorrect passkey",
-        text: "Please try again.",
+        title: "Incorrect PassKey",
+        text: "Go away!",
       });
     }
   });
@@ -113,6 +112,7 @@ logoutBtn.addEventListener("click", () => {
       timer: 1000,
       showConfirmButton: false,
     });
+    cart = [];
   });
 });
 
@@ -134,20 +134,40 @@ async function renderProducts() {
       product = doc.data();
 
       renderingProducts.push(`
-  <div class="bg-white p-4 rounded-lg shadow-md">
-    <img 
-      src="${m.imageUrl}" 
-      alt="Product Image" 
-      class="w-full h-40 object-fill rounded-md mb-3"
-    />
-    <h2 class="text-lg font-semibold text-gray-800 mb-2">${m.productName}</h2>
-    <p class="text-sm font-medium text-gray-700">Price: $${m.ProductPrice}</p>
-    <button 
-      onclick="addToCart('${doc.id}', '${m.productName}', ${m.ProductPrice})" 
-      class="bg-blue-500 text-white px-3 py-1 rounded">
-      Add to Cart
-    </button>
+<div class="card" id="${doc.id}">
+  <div class="card__shine"></div>
+  <div class="card__glow"></div>
+  <div class="card__content">
+    
+    <!-- Optional Badge (remove if not needed) -->
+    <div class="card__badge">NEW</div>
+    
+    <!-- Product Image -->
+    <div class="card__image" style="--bg-color: #a78bfa; background-image: url('${m.imageUrl}'); background-size: cover; background-position: center;"></div>
+    
+    <!-- Product Info -->
+    <div class="card__text">
+      <p class="card__title">${m.productName}</p>
+      <p class="card__description">Hover to reveal stunning effects</p>
+    </div>
+    
+    <!-- Footer -->
+    <div class="card__footer">
+      <div class="card__price">$${m.ProductPrice}</div>
+      <div class="card__button" onclick="addToCart('${doc.id}', '${m.productName}', '${m.ProductPrice}')">
+        <svg height="16" width="16" viewBox="0 0 24 24">
+          <path
+            stroke-width="2"
+            stroke="currentColor"
+            d="M4 12H20M12 4V20"
+            fill="currentColor"
+          ></path>
+        </svg>
+      </div>
+    </div>
+    
   </div>
+</div>
 `);
     });
 
@@ -160,79 +180,192 @@ window.addToCart = addToCart;
 
 renderProducts();
 
-
-
 async function getProducts() {
   const querySnapshot = await getDocs(collection(db, "Products"));
   let product = [];
   querySnapshot.forEach((doc) => {
     product.push({ id: doc.id, ...doc.data() });
   });
-  console.table(product);
-}
-let cart = [];
-
-function addToCart(productId, productName, productPrice) {
-  console.table(cart);
-  
-   let existingProduct = cart.find(item => item.id === productId);
-      console.log(existingProduct);
-      // at first this will be undefine which is falsy value so if nhi chaly ga else chaly ga
-      // jab else chaly ga to exsisting product main cart.find( item.id ===prodcut id ko)
-      // compare kare ga to object return hogi which is truthty value, to quantity jo k humne 
-      // cart.push se add ki this quantity wo ab if waly block main plus ho jaye gi.
-      // object update ho jaye gi
-      // 
-
-      //  console.log(existingProduct.quantity);
-
-  
-
-  if (existingProduct) {
-
-    existingProduct.quantity += 1;
-
-  } else {
-    cart.push({
-      id: productId,
-      name: productName,
-      price: productPrice,
-      quantity: 1
-    });
-  }
-
-  updateCart();
 }
 
 function updateCart() {
   const cartItems = document.getElementById("cartItems");
   const cartSidebar = document.getElementById("cartSidebar");
-  cartItems.innerHTML = ""; 
+  cartItems.innerHTML = "";
 
   let totalPrice = 0;
-
-  cart.forEach(item => {
+  cart.forEach((item) => {
     totalPrice += item.price * item.quantity;
-
     cartItems.innerHTML += `
       <div class="mb-4 border-b pb-2">
         <p class="font-semibold">${item.name}</p>
-        <p class="text-sm text-gray-600">Price: $${item.price.toFixed(2)}</p>
-        <p class="text-sm text-gray-600">Quantity: ${item.quantity}</p>
-        <button id="${item.id}">🗑️</button>
+        <p class="text-sm text-gray-600">Price: $${item.price}</p>
+        <p class="text-sm text-gray-600">Quantity</p>
+                <button onclick="minusBtn('${item.id}')" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded">-</button>
+<span>${item.quantity}</span>
+<button onclick="plusBtn('${item.id}')" class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded">+</button>
+        <button onclick="deleteFromCart('${item.id}')" class="bg-gray-300 hover:bg-gray-400 text-black px-3 py-1 rounded"> Delete🗑️</button>
+
       </div>
     `;
   });
+  window.minusBtn = minusBtn;
+  window.plusBtn = plusBtn;
 
-  const totalPriceDiv = cartSidebar.querySelector("h2.text-lg.font-bold.mt-4");
-  if (totalPriceDiv) {
-    totalPriceDiv.textContent = `Total: $${totalPrice.toFixed(2)}`;
+  async function minusBtn(itemid) {
+    let exists = cart.find((item) => item.id === itemid);
+    if (exists) {
+      if (exists.quantity > 1) {
+        exists.quantity += -1;
+      }
+    }
+    await cartTofireBase();
+    updateCart();
   }
-  
-  if(window.cartCount) {
-    cartCount.textContent = cart.length;
+
+  async function plusBtn(itemId) {
+    let existingProduct = cart.find((item) => item.id === itemId);
+
+    if (existingProduct) {
+      existingProduct.quantity += 1;
+      await cartTofireBase();
+      updateCart();
+    }
+  }
+  let Subtotal = document.getElementById("Subtotal");
+  let finalPrice = document.getElementById("finalPrice");
+
+  let nettotal = document.getElementById("totalPrice");
+  let TotalQuanitiy = document.getElementById("TotalQuanitiy");
+  nettotal.innerText = `$${totalPrice.toFixed(2)}`;
+  if (window.cartCount) {
+    let total = 0;
+    cart.forEach((element) => {
+      total += element.quantity;
+    });
+    cartCount.textContent = total;
+
+    TotalQuanitiy.innerText = total;
+    Subtotal.innerText = `$${totalPrice}`;
+    finalPrice.innerText = `$${totalPrice + 12.4}  `;
+    // console.log(Subtotal.innerText);
   }
 }
 
-// when i wrote the code only i and god knew what i wrote. now only god knows what i wrote.
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    lodingCart();
+  } else {
+    updateCart();
+  }
+});
+let cart = [];
 
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    await lodingCart();
+  } else {
+    cart = [];
+    updateCart();
+  }
+});
+console.table(cart);
+
+async function lodingCart() {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const cartRef = doc(db, "carts", user.uid);
+  const cortsnap = await getDoc(cartRef);
+
+  if (cortsnap.exists()) {
+    cart = cortsnap.data().items || [];
+  } else {
+    cart = [];
+  }
+
+  updateCart();
+}
+// console.log(cart);
+
+async function cartTofireBase() {
+  const user = auth.currentUser;
+  if (!user) return;
+
+  const cartRef = doc(db, "carts", user.uid);
+  await setDoc(cartRef, { items: cart }, { merge: true });
+}
+
+let minusBtn = document.getElementById("minusBtn");
+let plusBtn = document.getElementById("plusBtn");
+
+async function addToCart(productId, productName, productPrice) {
+  const user = auth.currentUser;
+  if (!user) {
+    alert("Please log in to add to cart");
+    return;
+  }
+  let existingProduct = cart.find((item) => item.id === productId);
+
+  if (existingProduct) {
+    existingProduct.quantity += 1;
+  } else {
+    cart.push({
+      id: productId,
+      name: productName,
+      price: productPrice,
+      quantity: 1,
+    });
+  }
+
+  await cartTofireBase();
+  updateCart();
+}
+
+let MainBody = document.getElementById("MainBody");
+let checkoutdiv = document.getElementById("checkoutdiv");
+let Checkout = document.getElementById("Checkout");
+
+let backToPage = document.getElementById("backToPage");
+
+Checkout.addEventListener("click", () => {
+  cartSidebar.classList.toggle("-translate-x-full");
+  MainBody.classList.toggle("hidden");
+
+  checkoutdiv.classList.toggle("hidden");
+});
+
+backToPage.addEventListener("click", () => {
+  Swal.fire({
+    title: "Thank You",
+    text: "Thank you for purchasing Our movie",
+    icon: "success",
+  }).then(() => {
+    checkoutdiv.classList.toggle("hidden");
+
+    MainBody.classList.toggle("hidden");
+  });
+});
+
+const cartSidebar = document.getElementById("cartSidebar");
+const toggleCartBtn = document.getElementById("toggleCartBtn");
+const CloseCartBtn = document.getElementById("CloseCartBtn");
+
+toggleCartBtn.addEventListener("click", () => {
+  cartSidebar.classList.toggle("-translate-x-full");
+});
+
+CloseCartBtn.addEventListener("click", () => {
+  cartSidebar.classList.toggle("-translate-x-full");
+});
+async function deleteFromCart(itemId) {
+  const index = cart.findIndex((item) => item.id === itemId);
+
+  if (index !== -1) {
+    cart.splice(index, 1);
+    await cartTofireBase();
+    updateCart();
+  }
+}
+
+window.deleteFromCart = deleteFromCart;
